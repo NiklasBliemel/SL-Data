@@ -110,3 +110,28 @@ def film_B_T_plot():
     data = data[np.argsort(data[:, 0])]
 
     plotter.plot_with_fit(data, x_label="T[K]", y_label="B[T]", title="")
+
+
+def ht_plot():
+    data_ab = file_reader.read_file("ht/Hochtemperatur_ab.txt", "\t")
+    data_c = file_reader.read_file("ht/Hochtemperatur_c.txt", "\t")
+
+    y_data_ab = data_ab[:, 1]
+
+    average_y = np.mean(y_data_ab[:10], axis=0)
+    next_average_y = np.mean(y_data_ab[10:20], axis=0)
+    peak_gradient = next_average_y - average_y
+    peak_gradient_index = 0
+
+    for i in range(1, len(y_data_ab) - 20):
+        average_y = np.mean(y_data_ab[i:(i + 10)], axis=0)
+        next_average_y = np.mean(y_data_ab[(i + 10):(i + 20)], axis=0)
+        gradient = -(next_average_y - average_y)
+        if gradient > peak_gradient:
+            peak_gradient = gradient
+            peak_gradient_index = i + 10
+
+    print(plotter.T_function(data_ab[peak_gradient_index, 0]))
+
+    plotter.double_plot(data_ab, data_c, vline=plotter.T_function(data_ab[peak_gradient_index, 0]), x_label="T[K]",
+                 y_label=r"R[$\text{m}\Omega$]", title="")

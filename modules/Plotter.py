@@ -9,6 +9,7 @@ class Plotter:
         self.l_ext = 15.8 * 1e-2
         self.N_ext = 6245
         self.I_const = 8e-6
+        self.I_ht_const = 1.95 * 1e-3
 
     def model_function(self, x, B_C, T_C):
         return B_C * (1 - (x / T_C) ** 2)
@@ -17,10 +18,16 @@ class Plotter:
         return (self.mu_o * x * self.N_ext) / self.l_ext
 
     def R1_function(self, x):
-        return x * 3e-3 / 8e-6
+        return x * 3e-3 / self.I_const
 
     def R2_function(self, x):
-        return x * 1e-2 / 8e-6
+        return x * 1e-2 / self.I_const
+
+    def R3_function(self, x):
+        return (x / self.I_ht_const) * 1e3
+
+    def T_function(self, x):
+        return np.sqrt((x * 1e6)/0.0637 + 16111) - 49.5
 
     def n_function(self, x):
         return x
@@ -60,6 +67,28 @@ class Plotter:
         y_data = self.R1_function(data[:, 1])
 
         ax.plot(x_data, y_data, color='black', linestyle="-", linewidth=0.5, marker='o', markersize=1)
+        if hline is not None:
+            ax.axhline(y=hline, color="red", linestyle="--", linewidth=1)
+        if vline is not None:
+            ax.axvline(x=vline, color="red", linestyle="--", linewidth=1)
+
+        plt.show()
+
+    def double_plot(self, data1=np.array([[0, 0]]), data2=np.array([0,0]), vline=None, hline=None, x_label="x - Axis", y_label="y - Axis", title="Plot Title"):
+        fig, ax = plt.subplots()
+        ax.set_title(title, fontsize=16, pad=15)
+        ax.set_xlabel(x_label, fontsize=10, labelpad=8)
+        ax.set_ylabel(y_label, fontsize=10, labelpad=8)
+        ax.grid(True)
+
+        x_data1 = self.T_function(data1[:, 0])
+        y_data1 = self.R3_function(data1[:, 1])
+
+        x_data2 = self.T_function(data2[:, 0])
+        y_data2 = self.R3_function(data2[:, 1])
+
+        ax.plot(x_data1, y_data1, color='black', linestyle="-", linewidth=1)
+        ax.plot(x_data2, y_data2, color='blue', linestyle="-", linewidth=1)
         if hline is not None:
             ax.axhline(y=hline, color="red", linestyle="--", linewidth=1)
         if vline is not None:
