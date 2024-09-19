@@ -8,8 +8,16 @@ file_reader = FileReader.FileReader()
 plotter = Plotter.Plotter()
 
 
-def spule_R_B_plot(file):
-    data = file_reader.read_file("tt Spule/" + file, "\t")
+'''''
+In this module are the assembled evaluations of the experiments.
+Whenever there is a file as argument, you can choose which of the measurements to plot, by just writing the respective
+temperature of the measurement, stored in the file names.
+Some of the functions will print evaluation data in the terminal, for example the parameter of the fit-function
+'''''
+
+
+def spule_R_B_plot(file=4.32):
+    data = file_reader.read_file("tt Spule/" + str(file), "\t")
 
     y_data = data[1:, 1]
 
@@ -26,8 +34,8 @@ def spule_R_B_plot(file):
             peak_gradient = gradient
             peak_gradient_index = i + 10
 
-    plotter.plot(data[1:], vline=plotter.B_function(data[peak_gradient_index, 0]), x_label="B[T]",
-                 y_label=r"R[$\Omega$]", title="")
+    plotter.plot(data[1:], vline=plotter.tt_I_to_B(data[peak_gradient_index, 0]), x_label="B[T]",
+                 y_label=r"R[$\Omega$]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_spule_U_to_R)
 
 
 def spule_B_T_plot():
@@ -60,8 +68,8 @@ def spule_B_T_plot():
     plotter.plot_with_fit(data, x_label="T[K]", y_label="B[T]", title="")
 
 
-def film_R_B_plot(file):
-    data = file_reader.read_file("tt-Teil film/" + file, "\t")
+def film_R_B_plot(file=8.34):
+    data = file_reader.read_file("tt-Teil film/" + str(file), "\t")
 
     y_data = data[1:, 1]
 
@@ -78,8 +86,8 @@ def film_R_B_plot(file):
             peak_gradient = gradient
             peak_gradient_index = i
 
-    plotter.plot(data[1:], vline=plotter.B_function(data[peak_gradient_index, 0]), x_label="B[T]",
-                 y_label=r"R[$\Omega$]", title="")
+    plotter.plot(data[1:], vline=plotter.tt_I_to_B(data[peak_gradient_index, 0]), x_label="B[T]",
+                 y_label=r"R[$\Omega$]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_film_U_to_R)
 
 
 def film_B_T_plot():
@@ -109,7 +117,7 @@ def film_B_T_plot():
     data = np.array(data)
     data = data[np.argsort(data[:, 0])]
 
-    plotter.plot_with_fit(data, x_label="T[K]", y_label="B[T]", title="")
+    plotter.plot_with_fit(fit_start=5, data=data, x_label="T[K]", y_label="B[T]", title="")
 
 
 def ht_plot():
@@ -131,7 +139,7 @@ def ht_plot():
             peak_gradient = gradient
             peak_gradient_index = i + 10
 
-    print(plotter.T_function(data_ab[peak_gradient_index, 0]))
+    print(plotter.ht_U_to_T(data_ab[peak_gradient_index, 0]))
 
-    plotter.double_plot(data_ab, data_c, vline=plotter.T_function(data_ab[peak_gradient_index, 0]), x_label="T[K]",
-                 y_label=r"R[$\text{m}\Omega$]", title="")
+    plotter.double_plot(data_ab, data_c, vline=plotter.ht_U_to_T(data_ab[peak_gradient_index, 0]), x_label="T[K]",
+                        y_label=r"R[$\text{m}\Omega$]", title="")
