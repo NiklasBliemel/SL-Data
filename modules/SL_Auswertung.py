@@ -16,7 +16,7 @@ Some of the functions will print evaluation data in the terminal, for example th
 '''''
 
 
-def spule_R_B_plot(file=4.32):
+def spule_R_B_plot(file="6.18"):
     data = file_reader.read_file("tt Spule/" + str(file), "\t")
 
     y_data = data[1:, 1]
@@ -68,7 +68,7 @@ def spule_B_T_plot():
     plotter.plot_with_fit(data, x_label="T[K]", y_label="B[T]", title="")
 
 
-def film_R_B_plot(file=8.34):
+def film_R_B_plot(file="8.50"):
     data = file_reader.read_file("tt-Teil film/" + str(file), "\t")
 
     y_data = data[1:, 1]
@@ -88,6 +88,21 @@ def film_R_B_plot(file=8.34):
 
     plotter.plot(data[1:], vline=plotter.tt_I_to_B(data[peak_gradient_index, 0]), x_label="B[T]",
                  y_label=r"R[$\Omega$]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_film_U_to_R)
+
+
+def film_R_T_plot():
+    data = []
+    for file in Path("tt-Teil film/").iterdir():
+        try:
+            file_data = file_reader.read_file(str(file), "\t")
+            y_data = np.mean(file_data[:20, 1], axis=0)
+            data.append([float(str(file).split("/")[-1]), y_data])
+
+        except UnicodeDecodeError as e:
+            print(e)
+
+    data = np.sort(np.array(data), axis=0)
+    plotter.plot(data, x_label="T[K]", y_label=r"R[$\Omega$]", vline=8.81, title="", y_function=plotter.tt_film_U_to_R, style=2)
 
 
 def film_B_T_plot():

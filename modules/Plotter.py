@@ -60,17 +60,28 @@ class Plotter:
 
         plt.show()
 
-    def plot(self, data=np.array([[0, 0]]), vline=None, hline=None, x_label="x - Axis", y_label="y - Axis", title="Plot Title", x_function=None, y_function=None):
+    def plot(self, data=np.array([[0, 0]]), vline=None, hline=None, x_label="x - Axis", y_label="y - Axis", title="Plot Title", x_function=None, y_function=None, style=1):
         fig, ax = plt.subplots()
         ax.set_title(title, fontsize=16, pad=15)
         ax.set_xlabel(x_label, fontsize=10, labelpad=8)
         ax.set_ylabel(y_label, fontsize=10, labelpad=8)
         ax.grid(True)
 
-        x_data = x_function(data[:, 0])
-        y_data = y_function(data[:, 1])
+        if x_function is not None:
+            x_data = x_function(data[:, 0])
+        else:
+            x_data = data[:, 0]
 
-        ax.plot(x_data, y_data, color='black', linestyle="-", linewidth=0.5, marker='o', markersize=1)
+        if y_function is not None:
+            y_data = y_function(data[:, 1])
+        else:
+            y_data = data[:, 1]
+
+        if style == 1:
+            ax.plot(x_data, y_data, color='black', linestyle="-", linewidth=0.5, marker='o', markersize=1)
+        elif style == 2:
+            ax.plot(x_data, y_data, color='black', linestyle="-", linewidth=0.5, marker='o', markersize=3)
+
         if hline is not None:
             ax.axhline(y=hline, color="red", linestyle="--", linewidth=1)
         if vline is not None:
