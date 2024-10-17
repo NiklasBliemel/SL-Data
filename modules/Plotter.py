@@ -30,6 +30,9 @@ class Plotter:
     def tt_spule_U_to_R(self, x):
         return x * 1e-2 / self.I_const
 
+    def tt_spule_U(self, x):
+        return x * 10
+
     def ht_U_to_R(self, x):
         return (x / self.I_ht_const) * 1e3
 
@@ -60,7 +63,7 @@ class Plotter:
 
         plt.show()
 
-    def plot(self, data=np.array([[0, 0]]), vline=None, hline=None, x_label="x - Axis", y_label="y - Axis", title="Plot Title", x_function=None, y_function=None, style=1):
+    def plot(self, data=np.array([[0, 0]]), vline=None, hline=None, hline_list=None, x_label="x - Axis", y_label="y - Axis", title="Plot Title", x_function=None, y_function=None, style=1):
         fig, ax = plt.subplots()
         ax.set_title(title, fontsize=16, pad=15)
         ax.set_xlabel(x_label, fontsize=10, labelpad=8)
@@ -84,6 +87,9 @@ class Plotter:
 
         if hline is not None:
             ax.axhline(y=hline, color="red", linestyle="--", linewidth=1)
+        if hline_list is not None:
+            for h in hline_list:
+                ax.axhline(y=h, color="red", linestyle="--", linewidth=1)
         if vline is not None:
             ax.axvline(x=vline, color="red", linestyle="--", linewidth=1)
 

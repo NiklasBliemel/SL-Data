@@ -3,6 +3,7 @@ from modules import FileReader
 from pathlib import Path
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 file_reader = FileReader.FileReader()
 plotter = Plotter.Plotter()
@@ -36,6 +37,28 @@ def spule_R_B_plot(file="6.18"):
 
     plotter.plot(data[1:], vline=plotter.tt_I_to_B(data[peak_gradient_index, 0]), x_label="B[T]",
                  y_label=r"R[$\Omega$]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_spule_U_to_R)
+
+
+def spule_B_U_plot(file="6.18"):
+    data = file_reader.read_file("tt Spule/" + str(file), "\t")
+
+    y_data = data[1:, 1]
+
+    average_y = np.mean(y_data[:10], axis=0)
+    next_average_y = np.mean(y_data[10:20], axis=0)
+    peak_gradient = next_average_y - average_y
+    peak_gradient_index = 0
+
+    for i in range(1, len(y_data) - 20):
+        average_y = np.mean(y_data[i:(i + 10)], axis=0)
+        next_average_y = np.mean(y_data[(i + 10):(i + 20)], axis=0)
+        gradient = next_average_y - average_y
+        if gradient > peak_gradient:
+            peak_gradient = gradient
+            peak_gradient_index = i + 10
+
+    plotter.plot(data[1:], vline=plotter.tt_I_to_B(data[peak_gradient_index, 0]), x_label="B[T]",
+                 y_label=r"R[$\Omega$]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_spule_U)
 
 
 def spule_B_T_plot():
@@ -158,3 +181,61 @@ def ht_plot():
 
     plotter.double_plot(data_ab, data_c, vline=plotter.ht_U_to_T(data_ab[peak_gradient_index, 0]), x_label="T[K]",
                         y_label=r"R[$\text{m}\Omega$]", title="")
+
+
+def tt_Spule_mean_U_diff(temp="6.70"):
+    U_ind_1_list = []
+    U_ind_2_list = []
+    U_diff_list = []
+
+    for file in Path("tt Spule").iterdir():
+        try:
+            file_data = file_reader.read_file(str(file), "\t")
+            U_data = plotter.tt_spule_U(file_data[1:, 1])
+
+            average_y = np.mean(U_data[:20], axis=0)
+            next_average_y = np.mean(U_data[1:20], axis=0)
+            peak_gradient = next_average_y - average_y
+            peak_gradient_index = 0
+
+            for i in range(1, len(U_data) - 20):
+                average_y = np.mean(U_data[i:(i + 10)], axis=0)
+                next_average_y = np.mean(U_data[(i + 10):(i + 20)], axis=0)
+                gradient = next_average_y - average_y
+                if gradient > peak_gradient:
+                    peak_gradient = gradient
+                    peak_gradient_index = i + 1
+
+            U_ind_1 = np.mean(U_data[10: peak_gradient_index-5])
+            U_ind_1_list.append(U_ind_1)
+            U_ind_2 = np.mean(U_data[peak_gradient_index+25: 300])
+            U_ind_2_list.append(U_ind_2)
+            U_diff_list.append(U_ind_1 - U_ind_2)
+
+        except UnicodeDecodeError as e:
+            print(e)
+
+    print(np.mean(np.array(U_diff_list)))
+
+    file_data = file_reader.read_file("tt Spule/" + str(temp), "\t")
+    B_data = file_data[1:, 0]
+    U_data = plotter.tt_spule_U(file_data[1:, 1])
+
+    average_y = np.mean(U_data[:20], axis=0)
+    next_average_y = np.mean(U_data[1:20], axis=0)
+    peak_gradient = next_average_y - average_y
+    peak_gradient_index = 0
+
+    for i in range(1, len(U_data) - 20):
+        average_y = np.mean(U_data[i:(i + 10)], axis=0)
+        next_average_y = np.mean(U_data[(i + 10):(i + 20)], axis=0)
+        gradient = next_average_y - average_y
+        if gradient > peak_gradient:
+            peak_gradient = gradient
+            peak_gradient_index = i + 1
+
+    U_ind_1 = np.mean(U_data[7: peak_gradient_index-5])
+    U_ind_2 = np.mean(U_data[peak_gradient_index+25: 300])
+
+    plotter.plot(file_data[1:], hline_list=[U_ind_1, U_ind_2], x_label="B[T]",
+                 y_label=r"U[V]", title="", x_function=plotter.tt_I_to_B, y_function=plotter.tt_spule_U)
